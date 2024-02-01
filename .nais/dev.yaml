@@ -1,0 +1,25 @@
+kind: "Application"
+apiVersion: "nais.io/v1alpha1"
+metadata:
+  name: story-api
+  namespace: nada
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+  labels:
+    team: nada
+spec:
+  image: "{{ image }}"
+  port: 8080
+  replicas:
+    min: 2
+    max: 3
+  env:
+    - name: BUCKET
+      value: nada-ekstern-markedsplass-dev
+  ingresses:
+    - "https://nada.ekstern.dev.nav.no/api"
+  gcp:
+    buckets:
+      - name: nada-ekstern-markedsplass-dev
+        publicAccessPrevention: false
+        uniformBucketLevelAccess: true
