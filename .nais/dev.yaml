@@ -14,7 +14,7 @@ spec:
     min: 2
     max: 3
   env:
-    - name: BUCKET
+    - name: STORY_BUCKET
       value: nada-ekstern-markedsplass-dev
   ingresses:
     - "https://nada.ekstern.dev.nav.no/api"
