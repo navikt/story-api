@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"cloud.google.com/go/storage"
 	"google.golang.org/api/iterator"
@@ -80,10 +81,29 @@ func (c *Client) UploadFile(ctx context.Context, filePath string, content []byte
 		Metadata: map[string]string{
 			"team": owner,
 		},
+		ContentType: setContentType(filePath),
 	})
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// todo: google sdken automatisk inferre filtypen basert på filenavnet.
+func setContentType(fileName string) string {
+	fileNameParts := strings.Split(fileName, ".")
+	fileExtension := fileNameParts[len(fileNameParts)-1]
+	switch fileExtension {
+	case "js":
+		return "text/js"
+	case "css":
+		return "text/css"
+	case "woff":
+		return "application/font-woff"
+	case "html":
+		return "text/html"
+	default:
+		return "text/plain"
+	}
 }
