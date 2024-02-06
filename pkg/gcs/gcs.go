@@ -3,7 +3,7 @@ package gcs
 import (
 	"context"
 	"errors"
-	"fmt"
+	"io"
 	"strings"
 
 	"cloud.google.com/go/storage"
@@ -27,35 +27,23 @@ func New(ctx context.Context, bucket string) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) GetObjectMetadata(ctx context.Context, storyID string) (map[string]string, error) {
-	obj, err := c.client.Bucket(c.bucket).Object(fmt.Sprintf("datafortellinger/%v/index.html", storyID)).Attrs(ctx)
+func (c *Client) ReadFile(ctx context.Context, objPath string) ([]byte, error) {
+	reader, err := c.client.Bucket(c.bucket).Object(objPath).NewReader(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return obj.Metadata, nil
+	return io.ReadAll(reader)
 }
 
-func (c *Client) DeleteFilesWithPrefix(ctx context.Context, prefix string) error {
-	files := c.ListFilesWithPrefix(ctx, prefix)
-
-	for _, file := range files {
-		if err := c.client.Bucket(c.bucket).Object(file).Delete(ctx); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (c *Client) ListFilesWithPrefix(ctx context.Context, prefix string) []string {
-	files := []string{}
-	dbts := c.client.Bucket(c.bucket).Objects(ctx, &storage.Query{
-		Prefix: prefix,
+func (c *Client) ListFilesWithGlobalPattern(ctx context.Context, pattern string) ([]string, error) {
+	objs := c.client.Bucket(c.bucket).Objects(ctx, &storage.Query{
+		MatchGlob: pattern,
 	})
 
+	files := []string{}
 	for {
-		o, err := dbts.Next()
+		o, err := objs.Next()
 		if errors.Is(err, iterator.Done) {
 			break
 		}
@@ -63,10 +51,33 @@ func (c *Client) ListFilesWithPrefix(ctx context.Context, prefix string) []strin
 		files = append(files, o.Name)
 	}
 
+	return files, nil
+}
+
+func (c *Client) ListFilesWithPrefix(ctx context.Context, prefix string) []string {
+	files := []string{}
+	objs := c.client.Bucket(c.bucket).Objects(ctx, &storage.Query{
+		Prefix: prefix,
+	})
+
+	for {
+		o, err := objs.Next()
+		if errors.Is(err, iterator.Done) {
+			break
+		}
+
+		files = append(files, o.Name)
+
+	}
+
 	return files
 }
 
-func (c *Client) UploadFile(ctx context.Context, filePath string, content []byte, owner string) error {
+func (c *Client) DeleteFile(ctx context.Context, filePath string) error {
+	return c.client.Bucket(c.bucket).Object(filePath).Delete(ctx)
+}
+
+func (c *Client) UploadFile(ctx context.Context, filePath string, content []byte) error {
 	writer := c.client.Bucket(c.bucket).Object(filePath).NewWriter(ctx)
 	_, err := writer.Write(content)
 	if err != nil {
@@ -78,9 +89,6 @@ func (c *Client) UploadFile(ctx context.Context, filePath string, content []byte
 	}
 
 	_, err = c.client.Bucket(c.bucket).Object(filePath).Update(ctx, storage.ObjectAttrsToUpdate{
-		Metadata: map[string]string{
-			"team": owner,
-		},
 		ContentType: setContentType(filePath),
 	})
 	if err != nil {

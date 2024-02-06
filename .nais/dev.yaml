@@ -8,6 +8,10 @@ metadata:
   labels:
     team: nada
 spec:
+  accessPolicy:
+    outbound:
+      rules:
+        - application: nada-backend
   image: "{{ image }}"
   port: 8080
   replicas:
@@ -16,6 +20,10 @@ spec:
   env:
     - name: STORY_BUCKET
       value: nada-ekstern-markedsplass-dev
+    - name: NADA_BACKEND_URL
+      value: http://nada-backend.nada.svc.cluster.local/internal/teamtokens
+  envFrom:
+    - secret: story-api
   ingresses:
     - "https://nada.ekstern.dev.nav.no/api"
   gcp:
