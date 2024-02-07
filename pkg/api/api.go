@@ -179,6 +179,62 @@ func setupRoutes(server *echo.Group, gcs *gcs.Client, tokenTeamMap map[string]st
 			"message": fmt.Sprintf("updated story %v", storyMeta.Slug),
 		})
 	})
+
+	server.PATCH("/story/:id", func(c echo.Context) error {
+		storyID := c.Param("id")
+
+		storyMeta, err := getStoryMetadataForID(c.Request().Context(), gcs, storyID)
+		if err != nil {
+			logger.Error(fmt.Sprintf("getting story metadata for story with ID %v", storyID), "error", err)
+			return c.JSON(http.StatusNotFound, map[string]string{
+				"status":  "error",
+				"message": "internal server error",
+			})
+		}
+		if storyMeta == nil {
+			logger.Error(fmt.Sprintf("no story exists for id %v", storyID), "error", err)
+			return c.JSON(http.StatusNotFound, map[string]string{
+				"status":  "error",
+				"message": fmt.Sprintf("no story exists for id %v", storyID),
+			})
+		}
+
+		token, err := teamTokenFromHeader(c)
+		if err != nil {
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"status":  "error",
+				"message": "no authorization token provided with request",
+			})
+		}
+
+		team, ok := tokenTeamMap[token]
+		if !ok {
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"status":  "error",
+				"message": "invalid token provided with request",
+			})
+		}
+
+		if storyMeta.Team != team {
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"status":  "error",
+				"message": fmt.Sprintf("team %v is not authorized to update story with slug %v", team, storyMeta.Slug),
+			})
+		}
+
+		if err := uploadStoryFiles(c, gcs, *storyMeta); err != nil {
+			logger.Error(fmt.Sprintf("error uploading story with slug '%v'", storyMeta.Slug), "error", err)
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"status":  "error",
+				"message": fmt.Sprintf("error uploading story with slug '%v' to bucket", storyMeta.Slug),
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]string{
+			"status":  "updated",
+			"message": fmt.Sprintf("updated story %v", storyMeta.Slug),
+		})
+	})
 }
 
 func teamTokenFromHeader(c echo.Context) (string, error) {
