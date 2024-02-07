@@ -136,27 +136,8 @@ func setupRoutes(server *echo.Group, gcs *gcs.Client, tokenTeamMap map[string]st
 			})
 		}
 
-		token, err := teamTokenFromHeader(c)
-		if err != nil {
-			return c.JSON(http.StatusUnauthorized, map[string]string{
-				"status":  "error",
-				"message": "no authorization token provided with request",
-			})
-		}
-
-		team, ok := tokenTeamMap[token]
-		if !ok {
-			return c.JSON(http.StatusUnauthorized, map[string]string{
-				"status":  "error",
-				"message": "invalid token provided with request",
-			})
-		}
-
-		if storyMeta.Team != team {
-			return c.JSON(http.StatusUnauthorized, map[string]string{
-				"status":  "error",
-				"message": fmt.Sprintf("team %v is not authorized to update story with slug %v", team, storyMeta.Slug),
-			})
+		if err := ensureAllowedToUpdate(c, *storyMeta, tokenTeamMap, logger); err != nil {
+			return err
 		}
 
 		if err := deleteStoryFiles(c.Request().Context(), gcs, fmt.Sprintf("%v/%v", pathPrefix, storyMeta.Slug)); err != nil {
@@ -200,27 +181,8 @@ func setupRoutes(server *echo.Group, gcs *gcs.Client, tokenTeamMap map[string]st
 			})
 		}
 
-		token, err := teamTokenFromHeader(c)
-		if err != nil {
-			return c.JSON(http.StatusUnauthorized, map[string]string{
-				"status":  "error",
-				"message": "no authorization token provided with request",
-			})
-		}
-
-		team, ok := tokenTeamMap[token]
-		if !ok {
-			return c.JSON(http.StatusUnauthorized, map[string]string{
-				"status":  "error",
-				"message": "invalid token provided with request",
-			})
-		}
-
-		if storyMeta.Team != team {
-			return c.JSON(http.StatusUnauthorized, map[string]string{
-				"status":  "error",
-				"message": fmt.Sprintf("team %v is not authorized to update story with slug %v", team, storyMeta.Slug),
-			})
+		if err := ensureAllowedToUpdate(c, *storyMeta, tokenTeamMap, logger); err != nil {
+			return err
 		}
 
 		if err := uploadStoryFiles(c, gcs, *storyMeta); err != nil {
@@ -236,6 +198,33 @@ func setupRoutes(server *echo.Group, gcs *gcs.Client, tokenTeamMap map[string]st
 			"message": fmt.Sprintf("updated story %v", storyMeta.Slug),
 		})
 	})
+}
+
+func ensureAllowedToUpdate(c echo.Context, storyMeta storyMetadata, tokenTeamMap map[string]string, logger *slog.Logger) error {
+	token, err := teamTokenFromHeader(c)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]string{
+			"status":  "error",
+			"message": "no authorization token provided with request",
+		})
+	}
+
+	team, ok := tokenTeamMap[token]
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, map[string]string{
+			"status":  "error",
+			"message": "invalid token provided with request",
+		})
+	}
+
+	if storyMeta.Team != team {
+		return c.JSON(http.StatusUnauthorized, map[string]string{
+			"status":  "error",
+			"message": fmt.Sprintf("team %v is not authorized to update story with slug %v", team, storyMeta.Slug),
+		})
+	}
+
+	return nil
 }
 
 func teamTokenFromHeader(c echo.Context) (string, error) {
