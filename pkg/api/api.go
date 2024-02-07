@@ -20,6 +20,7 @@ import (
 const (
 	maxMemoryMultipartForm = 32 << 20
 	metadataFile           = "nada_metadata.json"
+	pathPrefix             = "fortelling"
 )
 
 type storyMetadata struct {
@@ -79,7 +80,7 @@ func setupRoutes(server *echo.Group, gcs *gcs.Client, tokenTeamMap map[string]st
 		storyMeta.ID = uuid.New().String()
 		storyMeta.Slug = createStorySlug(storyMeta)
 
-		_, err = gcs.ReadFile(c.Request().Context(), fmt.Sprintf("fortelling/%v/%v", storyMeta.Slug, metadataFile))
+		_, err = gcs.ReadFile(c.Request().Context(), fmt.Sprintf("%v/%v/%v", pathPrefix, storyMeta.Slug, metadataFile))
 		if err == nil {
 			logger.Error(fmt.Sprintf("there already exists a story with slug %v", storyMeta.Slug))
 			return c.JSON(http.StatusConflict, map[string]string{
@@ -102,7 +103,7 @@ func setupRoutes(server *echo.Group, gcs *gcs.Client, tokenTeamMap map[string]st
 				"message": "internal server error",
 			})
 		}
-		if err := gcs.UploadFile(c.Request().Context(), fmt.Sprintf("fortelling/%v/%v", storyMeta.Slug, metadataFile), storyMetaBytes); err != nil {
+		if err := gcs.UploadFile(c.Request().Context(), fmt.Sprintf("%v/%v/%v", pathPrefix, storyMeta.Slug, metadataFile), storyMetaBytes); err != nil {
 			logger.Error(fmt.Sprintf("unable to create story %v", storyMeta.Slug), "error", err)
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"status":  "error",
@@ -158,7 +159,7 @@ func setupRoutes(server *echo.Group, gcs *gcs.Client, tokenTeamMap map[string]st
 			})
 		}
 
-		if err := deleteStoryFiles(c.Request().Context(), gcs, fmt.Sprintf("fortelling/%v", storyMeta.Slug)); err != nil {
+		if err := deleteStoryFiles(c.Request().Context(), gcs, fmt.Sprintf("%v/%v", pathPrefix, storyMeta.Slug)); err != nil {
 			logger.Error(fmt.Sprintf("error deleting story '%v' before updating", storyMeta.Slug), "error", err)
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"status":  "error",
@@ -311,7 +312,7 @@ func uploadStoryFiles(c echo.Context, gcs *gcs.Client, storyMeta storyMetadata) 
 			return err
 		}
 
-		if err := gcs.UploadFile(c.Request().Context(), fmt.Sprintf("fortelling/%v/%v", storyMeta.Slug, fileName), fileBytes); err != nil {
+		if err := gcs.UploadFile(c.Request().Context(), fmt.Sprintf("%v/%v/%v", pathPrefix, storyMeta.Slug, fileName), fileBytes); err != nil {
 			return err
 		}
 	}
