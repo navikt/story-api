@@ -259,7 +259,7 @@ func createStorySlug(storyMeta storyMetadata) string {
 }
 
 func getStoryMetadataForID(ctx context.Context, gcs *gcs.Client, id string) (*storyMetadata, error) {
-	files, err := gcs.ListFilesWithGlobalPattern(ctx, fmt.Sprintf("**%v**", metadataFile))
+	files, err := gcs.ListFilesWithGlobalPattern(ctx, fmt.Sprintf("**/%v", metadataFile))
 	if err != nil {
 		return nil, err
 	}
