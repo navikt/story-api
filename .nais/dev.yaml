@@ -26,6 +26,7 @@ spec:
     - secret: story-api
   ingresses:
     - "https://nada.ekstern.dev.nav.no/api"
+    - "https://data.ekstern.dev.nav.no/api"
   gcp:
     buckets:
       - name: nada-ekstern-markedsplass-dev
