@@ -137,8 +137,10 @@ func setupRoutes(server *echo.Group, gcs *gcs.Client, tokenTeamMap map[string]st
 		}
 
 		if err := ensureAllowedToUpdate(c, *storyMeta, tokenTeamMap); err != nil {
-			logger.Warn(fmt.Sprintf("put unauthorized '%v'", storyMeta.Slug), "error", err)
-			return err
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"status":  "error",
+				"message": err.Error(),
+			})
 		}
 
 		if err := deleteStoryFiles(c.Request().Context(), gcs, fmt.Sprintf("%v/%v", pathPrefix, storyMeta.Slug)); err != nil {
@@ -183,8 +185,10 @@ func setupRoutes(server *echo.Group, gcs *gcs.Client, tokenTeamMap map[string]st
 		}
 
 		if err := ensureAllowedToUpdate(c, *storyMeta, tokenTeamMap); err != nil {
-			logger.Warn(fmt.Sprintf("patch unauthorized '%v'", storyMeta.Slug), "error", err)
-			return err
+			return c.JSON(http.StatusUnauthorized, map[string]string{
+				"status":  "error",
+				"message": err.Error(),
+			})
 		}
 
 		if err := uploadStoryFiles(c, gcs, *storyMeta); err != nil {
@@ -205,25 +209,16 @@ func setupRoutes(server *echo.Group, gcs *gcs.Client, tokenTeamMap map[string]st
 func ensureAllowedToUpdate(c echo.Context, storyMeta storyMetadata, tokenTeamMap map[string]string) error {
 	token, err := teamTokenFromHeader(c)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, map[string]string{
-			"status":  "error",
-			"message": "no authorization token provided with request",
-		})
+		return err
 	}
 
 	team, ok := tokenTeamMap[token]
 	if !ok {
-		return c.JSON(http.StatusUnauthorized, map[string]string{
-			"status":  "error",
-			"message": "invalid token provided with request",
-		})
+		return errors.New("unable to determine owner team from provided token")
 	}
 
 	if storyMeta.Team != team {
-		return c.JSON(http.StatusUnauthorized, map[string]string{
-			"status":  "error",
-			"message": fmt.Sprintf("team %v is not authorized to update story with slug %v", team, storyMeta.Slug),
-		})
+		return fmt.Errorf("team %v is not authorized to update story with slug %v", team, storyMeta.Slug)
 	}
 
 	return nil
