@@ -136,7 +136,8 @@ func setupRoutes(server *echo.Group, gcs *gcs.Client, tokenTeamMap map[string]st
 			})
 		}
 
-		if err := ensureAllowedToUpdate(c, *storyMeta, tokenTeamMap, logger); err != nil {
+		if err := ensureAllowedToUpdate(c, *storyMeta, tokenTeamMap); err != nil {
+			logger.Warn(fmt.Sprintf("put unauthorized '%v'", storyMeta.Slug), "error", err)
 			return err
 		}
 
@@ -181,7 +182,8 @@ func setupRoutes(server *echo.Group, gcs *gcs.Client, tokenTeamMap map[string]st
 			})
 		}
 
-		if err := ensureAllowedToUpdate(c, *storyMeta, tokenTeamMap, logger); err != nil {
+		if err := ensureAllowedToUpdate(c, *storyMeta, tokenTeamMap); err != nil {
+			logger.Warn(fmt.Sprintf("patch unauthorized '%v'", storyMeta.Slug), "error", err)
 			return err
 		}
 
@@ -200,7 +202,7 @@ func setupRoutes(server *echo.Group, gcs *gcs.Client, tokenTeamMap map[string]st
 	})
 }
 
-func ensureAllowedToUpdate(c echo.Context, storyMeta storyMetadata, tokenTeamMap map[string]string, logger *slog.Logger) error {
+func ensureAllowedToUpdate(c echo.Context, storyMeta storyMetadata, tokenTeamMap map[string]string) error {
 	token, err := teamTokenFromHeader(c)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
