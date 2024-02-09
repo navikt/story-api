@@ -111,6 +111,8 @@ func setContentType(fileName string) string {
 		return "application/font-woff"
 	case "html":
 		return "text/html"
+	case "svg":
+		return "image/svg+xml"
 	default:
 		return "text/plain"
 	}
