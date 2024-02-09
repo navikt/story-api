@@ -113,6 +113,8 @@ func setContentType(fileName string) string {
 		return "text/html"
 	case "svg":
 		return "image/svg+xml"
+	case "xml":
+		return "text/xml"
 	case "png":
 		return "image/png"
 	case "json":
