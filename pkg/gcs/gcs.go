@@ -104,7 +104,7 @@ func setContentType(fileName string) string {
 	fileExtension := fileNameParts[len(fileNameParts)-1]
 	switch fileExtension {
 	case "js":
-		return "text/js"
+		return "text/javascript"
 	case "css":
 		return "text/css"
 	case "woff":
@@ -113,6 +113,10 @@ func setContentType(fileName string) string {
 		return "text/html"
 	case "svg":
 		return "image/svg+xml"
+	case "png":
+		return "image/png"
+	case "json":
+		return "application/json"
 	default:
 		return "text/plain"
 	}
