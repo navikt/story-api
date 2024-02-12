@@ -79,27 +79,16 @@ func (c *Client) DeleteFile(ctx context.Context, filePath string) error {
 
 func (c *Client) UploadFile(ctx context.Context, filePath string, content []byte) error {
 	writer := c.client.Bucket(c.bucket).Object(filePath).NewWriter(ctx)
+	writer.ContentType = getContentType(filePath)
 	_, err := writer.Write(content)
 	if err != nil {
 		return err
 	}
 
-	if err := writer.Close(); err != nil {
-		return err
-	}
-
-	_, err = c.client.Bucket(c.bucket).Object(filePath).Update(ctx, storage.ObjectAttrsToUpdate{
-		ContentType: setContentType(filePath),
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return writer.Close()
 }
 
-// todo: google sdken automatisk inferre filtypen basert på filenavnet.
-func setContentType(fileName string) string {
+func getContentType(fileName string) string {
 	fileNameParts := strings.Split(fileName, ".")
 	fileExtension := fileNameParts[len(fileNameParts)-1]
 	switch fileExtension {
