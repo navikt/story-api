@@ -108,6 +108,8 @@ func getContentType(fileName string) string {
 		return "image/png"
 	case "json":
 		return "application/json"
+	case "xlsx":
+		return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 	default:
 		return "text/plain"
 	}
