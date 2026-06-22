@@ -10,7 +10,7 @@ COPY pkg pkg
 
 RUN go build -o story-api
 
-FROM alpine:3.24.0
+FROM alpine:3.24.1
 WORKDIR /app
 
 COPY --from=builder /src/story-api /app/story-api
