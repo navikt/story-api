@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/storage v1.63.1
 	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.15.4
-	google.golang.org/api v0.287.1
+	google.golang.org/api v0.288.0
 )
 
 require (
