@@ -33,4 +33,3 @@ spec:
     buckets:
       - name: nada-ekstern-markedsplass-dev
         publicAccessPrevention: false
-        uniformBucketLevelAccess: true
