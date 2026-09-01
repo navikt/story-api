@@ -1,6 +1,6 @@
 module github.com/navikt/story-api
 
-go 1.26.3
+go 1.26.7
 
 require (
 	cloud.google.com/go/storage v1.66.0
