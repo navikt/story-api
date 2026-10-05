@@ -5,7 +5,7 @@ go 1.26.7
 require (
 	cloud.google.com/go/storage v1.69.0
 	github.com/google/uuid v1.6.0
-	github.com/labstack/echo/v4 v4.15.4
+	github.com/labstack/echo/v4 v4.16.0
 	google.golang.org/api v0.300.0
 )
 
