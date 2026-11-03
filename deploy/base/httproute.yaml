@@ -21,13 +21,4 @@ spec:
     matches:
     - path:
         type: PathPrefix
-        value: /quarto/create
-      method: POST
-    - path:
-        type: PathPrefix
-        value: /quarto/update
-      method: PUT
-    - path:
-        type: PathPrefix
-        value: /quarto/update
-      method: PATCH
+        value: /quarto
