@@ -27,7 +27,7 @@ spec:
         env:
         - name: HOST
           value: datamarkedsplassen.intern.nav.no
-        image: artifacts.data.nav.no/dataplattform-infra/story-api-proxy:manuell
+        image: artifacts.data.nav.no/ghcr/navikt/story-api
         ports:
         - containerPort: 8080
           name: http
