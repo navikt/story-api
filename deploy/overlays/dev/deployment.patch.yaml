@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: story-api-proxy
+  namespace: datastories
+spec:
+  template:
+    spec:
+      containers:
+      - name: story-api-proxy
+        env:
+        - name: HOST
+          value: data.ekstern.dev.nav.no
