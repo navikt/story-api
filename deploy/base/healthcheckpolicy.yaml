@@ -2,7 +2,7 @@ apiVersion: networking.gke.io/v1
 kind: HealthCheckPolicy
 metadata:
   name: story-api-proxy
-  namespace: dataplattform-system
+  namespace: datastories
 spec:
   default:
     checkIntervalSec: 15

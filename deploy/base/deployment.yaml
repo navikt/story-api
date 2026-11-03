@@ -4,7 +4,7 @@ metadata:
   labels:
     app.kubernetes.io/name: story-api-proxy
   name: story-api-proxy
-  namespace: dataplattform-system
+  namespace: datastories
 spec:
   replicas: 2
   strategy:
