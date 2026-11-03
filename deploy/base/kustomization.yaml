@@ -3,13 +3,13 @@ kind: Kustomization
 namespace: datastories
 
 resources:
-  - httproute.yaml
-  - deployment.yaml
-  - service.yaml
-  - healthcheckpolicy.yaml
-  - serviceaccount.yaml
+- httproute.yaml
+- deployment.yaml
+- service.yaml
+- healthcheckpolicy.yaml
+- serviceaccount.yaml
 
 images:
 - name: artifacts.data.nav.no/ghcr/navikt/story-api
   newName: artifacts.data.nav.no/ghcr/navikt/story-api
-  newTag: "manuell"
+  newTag: "20261103115920"
