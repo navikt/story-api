@@ -5,4 +5,4 @@ metadata:
   namespace: datastories
 spec:
   hostnames:
-  - fortellinger.data.nav.no
+  - fortellinger.dev.data.nav.no
