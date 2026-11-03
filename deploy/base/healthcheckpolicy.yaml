@@ -1,0 +1,21 @@
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: story-api-proxy
+  namespace: dataplattform-system
+spec:
+  default:
+    checkIntervalSec: 15
+    config:
+      httpHealthCheck:
+        port: 8080
+        requestPath: /quarto/health
+      type: HTTP
+    healthyThreshold: 1
+    logConfig:
+      enabled: true
+    timeoutSec: 15
+  targetRef:
+    group: ""
+    kind: Service
+    name: story-api-proxy
