@@ -1,4 +1,4 @@
-FROM haproxy:3.4.6-alpine3.24
+FROM haproxy:3.4.7-alpine3.24
 
 LABEL org.opencontainers.image.source="https://github.com/navikt/story-api"
 
