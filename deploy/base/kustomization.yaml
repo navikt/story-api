@@ -12,4 +12,4 @@ resources:
 images:
 - name: artifacts.data.nav.no/ghcr/navikt/story-api
   newName: artifacts.data.nav.no/ghcr/navikt/story-api
-  newTag: "20261123151722"
+  newTag: "20261123151851"
