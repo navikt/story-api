@@ -28,6 +28,8 @@ spec:
     - secret: story-api
   ingresses:
     - "https://data.nav.no/api"
+    - "https://datafortelling-api.nav.no/api"
+    - "https://datamarkedsplassen.intern.nav.no/api/v1/story"
   gcp:
     buckets:
       - name: nada-ekstern-markedsplass-prod
